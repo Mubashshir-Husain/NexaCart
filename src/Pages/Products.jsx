@@ -5,12 +5,15 @@ import axios from 'axios'
 export default function Products({cartItems, setCartItems}) {
 
   let [allProduct, setAllProduct] = useState([])
-   let [isLoading,setIsLoading] = useState(true);
+  let [filteredData , setFilteredData] = useState([])
+  let [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function getData() {
       let res = await axios.get(`${import.meta.env.VITE_API_URL}`)
       setAllProduct(res.data);
+      setFilteredData(res.data);
+      console.log(res.data);
       setIsLoading(false);
     }
     getData();
@@ -23,6 +26,18 @@ export default function Products({cartItems, setCartItems}) {
      <center>
        <div id="TopSection" className="bg-white/80 backdrop-blur-md sticky top-0 px-8 py-6 border-b border-slate-200/60 z-10">
         <h2 className="text-5xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">Products Page</h2>
+        <div id="searchBar">
+         <form className='flex gap-4 mt-2' onSubmit={(e)=>{
+          e.preventDefault();
+            let searchQuery = e.target[0].value;
+
+          setFilteredData(allProduct.filter((e)=>e.category.name.toLowerCase().startsWith(searchQuery.toLowerCase())));
+            console.log(filteredData);  
+          }}>
+          <input className='w-full border rounded-2xl px-4 py-2' type="text" placeholder='Search......' />
+          <button className='px-4 py-2 text-white bg-indigo-700 rounded-2xl'>Search</button>
+          </form>
+        </div>
       </div>
      </center>
 
@@ -35,7 +50,8 @@ export default function Products({cartItems, setCartItems}) {
           </h2>
         </center>
       ) : (
-          allProduct.map((p) => (
+          <>{filteredData.length > 0 ? 
+            <>{filteredData.map((p) => (
             <div 
               key={p.id} 
               className="group bg-white/90 backdrop-blur-sm p-5 shadow-lg shadow-slate-200/50 rounded-2xl hover:shadow-2xl hover:shadow-indigo-200/40 hover:-translate-y-2 transition-all duration-300 border border-slate-100"
@@ -68,7 +84,14 @@ export default function Products({cartItems, setCartItems}) {
                 Add Cart
               </button>
             </div>
-          ))
+          ))}
+          </>:
+          <>
+            <center>
+              <h2>No Products Avilable .......</h2>
+            </center>
+          </>
+          }</>
         )}
       </div>
     </div>
